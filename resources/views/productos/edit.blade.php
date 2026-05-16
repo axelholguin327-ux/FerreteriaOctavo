@@ -16,7 +16,8 @@
                         {{-- Nombre --}}
                         <div>
                             <x-input-label for="nombre" :value="__('Nombre del Producto')" />
-                            <x-text-input id="nombre" name="nombre" type="text" class="mt-1 block w-full" :value="old('nombre', $producto->nombre)" required />
+                            <x-text-input id="nombre" name="nombre" type="text" class="mt-1 block w-full"
+                                :value="old('nombre', $producto->nombre)" required />
                         </div>
 
                         {{-- Categoría --}}
@@ -34,13 +35,15 @@
                         {{-- Precio --}}
                         <div>
                             <x-input-label for="precio" :value="__('Precio')" />
-                            <x-text-input id="precio" name="precio" type="number" step="0.01" class="mt-1 block w-full" :value="old('precio', $producto->precio)" required />
+                            <x-text-input id="precio" name="precio" type="number" step="0.01" class="mt-1 block w-full"
+                                :value="old('precio', $producto->precio)" required />
                         </div>
 
                         {{-- Stock --}}
                         <div>
                             <x-input-label for="stock" :value="__('Stock')" />
-                            <x-text-input id="stock" name="stock" type="number" class="mt-1 block w-full" :value="old('stock', $producto->stock)" required />
+                            <x-text-input id="stock" name="stock" type="number" class="mt-1 block w-full"
+                                :value="old('stock', $producto->stock)" required />
                         </div>
 
                         {{-- Imagen actual y nueva --}}
@@ -48,7 +51,8 @@
                             <x-input-label :value="__('Imagen del Producto (Opcional)')" />
                             @if($producto->imagen)
                                 <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $producto->imagen) }}" class="h-20 w-20 object-contain border rounded">
+                                    <img src="{{ Str::startsWith($producto->imagen, 'http') ? $producto->imagen : asset('storage/' . $producto->imagen) }}"
+                                        class="h-20 w-20 object-contain border rounded">
                                     <p class="text-xs text-gray-500 italic">Imagen actual</p>
                                 </div>
                             @endif
@@ -57,8 +61,10 @@
                     </div>
 
                     <div class="mt-6 flex gap-4">
-                        <x-primary-button class="bg-yellow-500 hover:bg-yellow-600">Actualizar Producto</x-primary-button>
-                        <a href="{{ route('productos.index') }}" class="text-gray-600 text-sm py-2 px-4 hover:underline">Cancelar</a>
+                        <x-primary-button class="bg-yellow-500 hover:bg-yellow-600">Actualizar
+                            Producto</x-primary-button>
+                        <a href="{{ route('productos.index') }}"
+                            class="text-gray-600 text-sm py-2 px-4 hover:underline">Cancelar</a>
                     </div>
                 </form>
             </div>

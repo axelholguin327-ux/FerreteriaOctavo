@@ -79,7 +79,7 @@
                                 <div
                                     class="h-48 w-full bg-gray-50 flex items-center justify-center border-b border-gray-100 p-2">
                                     @if($producto->imagen)
-                                        <img src="{{ asset('storage/' . $producto->imagen) }}"
+                                        <img src="{{ Str::startsWith($producto->imagen, 'http') ? $producto->imagen : asset('storage/' . $producto->imagen) }}"
                                             class="max-h-full max-w-full object-contain" alt="{{ $producto->nombre }}">
                                     @else
                                         <div class="flex flex-col items-center text-gray-300">
