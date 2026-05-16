@@ -22,7 +22,7 @@ ENV APP_ENV=production
 ENV NODE_ENV=production
 
 # Instalar dependencias Node Y buildear en un solo paso
-RUN npm install --verbose && ./node_modules/.bin/vite build
+RUN npm install --include=dev && ./node_modules/.bin/vite build
 
 # Debug: mostrar qué generó Vite
 RUN echo "=== Contenido de public/build ===" \
