@@ -18,6 +18,15 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->hasFile('imagen')) {
+            $uploaded = Cloudinary::upload(
+                $request->file('imagen')->getRealPath(),
+                ['folder' => 'productos']
+            );
+            $data['imagen'] = $uploaded->getSecurePath();
+            \Log::info('Cloudinary URL: ' . $data['imagen']);
+        }
+
         $request->validate([
             'nombre' => 'required|max:255',
             'precio' => 'required|numeric',
