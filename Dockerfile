@@ -45,4 +45,6 @@ CMD php artisan config:clear \
     && php artisan view:clear \
     && php artisan route:clear \
     && php artisan migrate --force \
+    && php artisan tinker --execute="echo 'Productos: ' . \App\Models\Product::count();" \
+    && php artisan tinker --execute="echo 'Usuarios: ' . \App\Models\User::count();" \
     && apache2-foreground
