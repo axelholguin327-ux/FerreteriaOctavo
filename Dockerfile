@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_pgsql gd mbstring bcmath xml
 
-# Instalar Node.js y NPM (Necesarios para compilar Vite / Mix)
+# Instalar Node.js y NPM
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs
 
@@ -31,16 +31,16 @@ WORKDIR /var/www/html
 # Copiar el proyecto completo
 COPY . .
 
-# Instalar dependencias de producción de PHP
+# Instalar dependencias de PHP
 RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist --no-dev --optimize-autoloader
 
-# Instalar dependencias de Node y compilar los assets (Vite o Mix)
-RUN npm install
-RUN npm run build || npm run prod || true
+# Instalar Node y forzar la compilación limpia de Vite para producción
+RUN npm ci || npm install
+RUN npm run build
 
-# Configurar permisos correctos para que Apache pueda escribir logs y sesiones
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+# Configurar permisos correctos para todo el proyecto, especialmente storage y public
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 
 # Cambiar la raíz de Apache a la carpeta /public de Laravel
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
@@ -50,5 +50,5 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.
 # Exponer puerto
 EXPOSE 80
 
-# Comando final: Limpieza profunda de cache en el arranque e iniciar Apache
-CMD chmod -R 777 storage bootstrap/cache && php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan route:clear && apache2-foreground
+# Comando de arranque limpiando todo rastro de caché vieja
+CMD php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan route:clear && apache2-foreground
