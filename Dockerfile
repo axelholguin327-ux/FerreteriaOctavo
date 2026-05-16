@@ -27,7 +27,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Instalar dependencias de producción limpiando optimizadores
-RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist --no-dev --optimize-autoloader
+RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist
 
 # Configurar los permisos correctos para que Apache pueda escribir
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
