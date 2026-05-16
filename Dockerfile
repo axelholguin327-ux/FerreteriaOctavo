@@ -24,6 +24,9 @@ ENV NODE_ENV=production
 # Instalar dependencias Node Y buildear en un solo paso
 RUN npm install --include=dev && ./node_modules/.bin/vite build
 
+# Debug: ver TODO lo que generó Vite
+RUN find /var/www/html/public/build/ -type f
+
 # Debug: mostrar qué generó Vite
 RUN echo "=== Contenido de public/build ===" \
     && ls -la /var/www/html/public/build/ \
