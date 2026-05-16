@@ -3,4 +3,3 @@ vendor
 .git
 storage/framework/cache/data/*
 storage/framework/views/*
-public/build

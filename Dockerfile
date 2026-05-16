@@ -15,27 +15,23 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copiar solo los archivos de dependencias primero (mejor cache)
-COPY package.json package-lock.json ./
-RUN npm ci
-
-COPY composer.json composer.lock ./
-RUN composer install --no-interaction --no-plugins --no-scripts \
-    --prefer-dist --no-dev --optimize-autoloader
-
-# Copiar el resto del proyecto
+# Copiar TODO el proyecto de una sola vez
 COPY . .
 
-# ⚠️ Clave: definir APP_ENV antes del build de Vite
 ENV APP_ENV=production
 ENV NODE_ENV=production
 
-# Build de assets
-RUN npm run build
+# Instalar dependencias Node Y buildear en un solo paso
+RUN npm install && npm run build
 
-# Verificación — si falla, el build de Docker falla también (te avisa)
-RUN test -f /var/www/html/public/build/manifest.json \
-    || (echo "ERROR: manifest.json no fue generado" && exit 1)
+# Debug: mostrar qué generó Vite
+RUN echo "=== Contenido de public/build ===" \
+    && ls -la /var/www/html/public/build/ \
+    && echo "=== manifest.json ===" \
+    && cat /var/www/html/public/build/manifest.json
+
+RUN composer install --no-interaction --no-plugins --no-scripts \
+    --prefer-dist --no-dev --optimize-autoloader
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
