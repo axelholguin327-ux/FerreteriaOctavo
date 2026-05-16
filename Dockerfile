@@ -1,6 +1,6 @@
 FROM php:8.1-apache
 
-# Instalar dependencias del sistema y extensiones de PHP requeridas
+# 1. Instalar dependencias del sistema y extensiones esenciales de PHP
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -15,40 +15,42 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_pgsql gd mbstring bcmath xml
 
-# Instalar Node.js y NPM
+# 2. Instalar Node.js y NPM
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs
 
-# Habilitar el módulo rewrite de Apache
+# 3. Activar el módulo rewrite de Apache
 RUN a2enmod rewrite
 
-# Instalar Composer
+# 4. Copiar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Configurar el directorio de trabajo
+# 5. Configurar el directorio base de la app
 WORKDIR /var/www/html
 
-# Copiar el proyecto completo
+# 6. Copiar absolutamente todo el código del proyecto
 COPY . .
 
-# Instalar dependencias de PHP
+# 7. Asignar dueños y permisos de una vez para evitar bloqueos de Node
+RUN chown -R www-data:www-data /var/www/html
+
+# 8. Instalar dependencias de PHP (Laravel)
 RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist --no-dev --optimize-autoloader
 
-# Instalar Node y forzar la compilación limpia de Vite para producción
-RUN npm ci || npm install
-RUN npm run build
+# 9. INSTALACIÓN Y COMPILACIÓN FORZADA DE ASSETS (VITE)
+# El comando "cd /var/www/html" obliga a Node a crear el build exactamente en la carpeta pública
+RUN cd /var/www/html && npm install && npm run build
 
-# Configurar permisos correctos para todo el proyecto, especialmente storage y public
-RUN chown -R www-data:www-data /var/www/html
+# 10. Asegurar permisos totales sobre storage, cache y el build recién creado
 RUN chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 
-# Cambiar la raíz de Apache a la carpeta /public de Laravel
+# 11. Redireccionar Apache a la carpeta /public de Laravel
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-# Exponer puerto
+# Exponer el puerto del contenedor
 EXPOSE 80
 
-# Comando de arranque limpiando todo rastro de caché vieja
-CMD php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan route:clear && php artisan config:cache && apache2-foreground
+# 12. Comando de arranque: Purgar cachés viejas y encender Apache
+CMD php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan route:clear && apache2-foreground
