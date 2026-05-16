@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\View;
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (config('app.env') === 'production') {
+        URL::forceScheme('https');
+        }
         Gate::define('access-admin', function (User $user) {
             return $user->role === 'admin';
         });
