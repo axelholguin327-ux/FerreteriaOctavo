@@ -15,23 +15,15 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copiar TODO el proyecto de una sola vez
 COPY . .
 
 ENV APP_ENV=production
 ENV NODE_ENV=production
 
-# Instalar dependencias Node Y buildear en un solo paso
 RUN npm install --include=dev && ./node_modules/.bin/vite build
 
-# Debug: ver TODO lo que generó Vite
+# Debug: ver exactamente qué archivos generó Vite
 RUN find /var/www/html/public/build/ -type f
-
-# Debug: mostrar qué generó Vite
-RUN echo "=== Contenido de public/build ===" \
-    && ls -la /var/www/html/public/build/ \
-    && echo "=== manifest.json ===" \
-    && cat /var/www/html/public/build/manifest.json
 
 RUN composer install --no-interaction --no-plugins --no-scripts \
     --prefer-dist --no-dev --optimize-autoloader
