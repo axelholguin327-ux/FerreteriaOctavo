@@ -37,11 +37,16 @@ RUN chown -R www-data:www-data /var/www/html
 # 8. Instalar dependencias de PHP (Laravel)
 RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist --no-dev --optimize-autoloader
 
-# 9. INSTALACIÓN Y COMPILACIÓN FORZADA DE ASSETS (VITE)
-# El comando "cd /var/www/html" obliga a Node a crear el build exactamente en la carpeta pública
-RUN cd /var/www/html && npm install && npm run build
+# 9. INSTALACIÓN Y COMPILACIÓN DE ASSETS
+RUN npm install
 
-# 10. Asegurar permisos totales sobre storage, cache y el build recién creado
+# Forzar a Vite a compilar usando los archivos limpios del contenedor
+RUN npm run build
+
+# COMODÍN DE DIAGNÓSTICO: Esto nos pintará en los logs de Render si el archivo realmente se creó
+RUN ls -la public/build || echo "ALERTA: La carpeta build sigue vacía"
+
+# 10. Asegurar permisos totales sobre todo lo generado
 RUN chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 
 # 11. Redireccionar Apache a la carpeta /public de Laravel
@@ -49,8 +54,8 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-# Exponer el puerto del contenedor
+# Exponer el puerto
 EXPOSE 80
 
-# 12. Comando de arranque: Purgar cachés viejas y encender Apache
+# 12. Comando de arranque: Limpieza absoluta
 CMD php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan route:clear && apache2-foreground
