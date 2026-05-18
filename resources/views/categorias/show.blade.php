@@ -17,7 +17,7 @@
                         class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full border border-gray-100 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
                         <div class="h-48 w-full bg-gray-50 flex items-center justify-center p-2">
                             @if($producto->imagen)
-                                <img src="{{ asset('storage/' . $producto->imagen) }}"
+                                <img src="{{ Str::startsWith($producto->imagen, 'http') ? $producto->imagen : asset('storage/' . $producto->imagen) }}"
                                     class="max-h-full max-w-full object-contain">
                             @else
                                 <span class="text-gray-300 uppercase text-xs">Sin imagen</span>

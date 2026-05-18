@@ -21,7 +21,7 @@
                             @foreach($cartItems as $item)
                                 <tr class="border-b">
                                     <td class="py-4 flex items-center">
-                                        <img src="{{ asset('storage/' . $item->product->imagen) }}"
+                                        <img src="{{ Str::startsWith($item->product->imagen, 'http') ? $item->product->imagen : asset('storage/' . $item->product->imagen) }}"
                                             class="w-12 h-12 object-contain mr-4">
                                         {{ $item->product->nombre }}
                                     </td>

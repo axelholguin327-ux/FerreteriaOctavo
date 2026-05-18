@@ -87,7 +87,7 @@
                                     {{-- IMAGEN --}}
                                     <div class="aspect-square flex items-center justify-center p-12">
                                         @if($producto->imagen)
-                                            <img src="{{ asset('storage/' . $producto->imagen) }}"
+                                            <img src="{{ Str::startsWith($producto->imagen, 'http') ? $producto->imagen : asset('storage/' . $producto->imagen) }}"
                                                 class="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105">
                                         @else
                                             <span
